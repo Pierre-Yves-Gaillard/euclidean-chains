@@ -1,0 +1,845 @@
+% !TEX encoding = UTF-8 Unicode
+% https://www.overleaf.com/project/6ac61e73b61e3c14b2b32bba
+% logbook: https://docs.google.com/document/d/1SPPpFVXP4v6Ll4PYcEX6hDNp3l-ePGzcNNCgi9UI8CM/edit?tab=t.0
+\documentclass[12pt,letterpaper]{article}
+
+\usepackage{etoolbox}
+% 1. Define the boolean variable (defaults to false)
+\newbool{scribe}
+% 2. Set the boolean value (\booltrue or \boolfalse)
+\booltrue{scribe}
+%\boolfalse{scribe}
+\ifbool{scribe}{
+    \usepackage[letterpaper,total={124mm,166mm},centering]{geometry}
+}{
+    \usepackage[letterpaper,top=50pt,left=60pt,right=60pt,bottom=70pt]{geometry}
+}
+
+%\usepackage[margin=1.1in]{geometry}
+%\usepackage[letterpaper,top=50pt,left=60pt,right=60pt,bottom=70pt]{geometry} % print
+%\usepackage[letterpaper,total={139mm,186mm},centering]{geometry} % SMALL2 scribe
+%\usepackage[letterpaper,total={124mm,166mm},centering]{geometry} % SMALL3 scribe last used
+% https://docs.google.com/document/d/1DJcZrjPx_dnQfeFpTTFppo3rdrFN6FbktpK75whE2zQ/edit?tab=t.0
+\usepackage{comment}
+%\documentclass[11pt]{article}
+%\usepackage[margin=1.1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref} 
+\usepackage{float}
+\usepackage{tikz-cd}
+\hypersetup{pdftitle={Euclidean Chains and Bézout Solutions},pdfauthor={Pierre-Yves Gaillard}}
+
+\setlength{\parskip}{0.45em}
+\setlength{\parindent}{0pt}
+\numberwithin{equation}{section}
+
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\B}{\mathcal B}
+\newcommand{\E}{\mathcal E}
+\newcommand{\Aff}{\operatorname{Aff}}
+\newcommand{\id}{\operatorname{id}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\normone}[1]{\lVert #1\rVert_1}
+\newcommand{\sgn}{\operatorname{sgn}}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Euclidean Chains and Bézout Solutions}
+\author{Pierre-Yves Gaillard}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents\bigskip
+
+\begin{abstract}
+The extended Euclidean algorithm produces a particular solution of a Bézout equation. We study a class of signed Euclidean chains and show that, by choosing the signs and the remainders appropriately, one can obtain every solution. More precisely, each Euclidean chain induces an affine automorphism of the integer line that parametrizes the solutions of the initial Bézout equation. We prove that every affine automorphism of $\Z$ can be realized by a chain with prescribed first two terms and a final term of absolute value $1$. The proof rests on a local classification: every step induces either the identity or one of two reflections, and these reflections generate the group of affine automorphisms of $\Z$. 
+\end{abstract}
+
+\section{\texorpdfstring{$\Z$-affine lines}{Z-affine lines}}
+
+\begin{definition}\label{def:Z-affine-line}
+A subset $L$ of $\Z^n$ is a $\Z$-\emph{affine line} if there is a point $p\in L$ and a nonzero vector $\vec{v}\in\Z^n$, called a \emph{direction vector}, such that $L=p+\Z\vec{v}$. 
+\end{definition}
+
+The main example of a $\Z$-affine line is $\Z$ itself, with $p=0,\vec v=1$. 
+
+\begin{lemma}\label{lem:affine-line}
+If $L$ is a $\Z$-affine line, if $r,s\in L$, and if $t\in\Z$, then $tr+(1-t)s\in L$. 
+\end{lemma}
+
+\begin{proof}
+Write $L=p+\Z\vec v$, and write $r=p+i\vec v$ and $s=p+j\vec v$ with $i,j\in\Z$. Then
+\[
+ tr+(1-t)s=p+\bigl(ti+(1-t)j\bigr)\vec v\in L.
+\]
+\end{proof}
+
+\begin{comment}
+[Details for the proof of Lemma~\ref{lem:affine-line}:
+\[
+ tr+(1-t)s=t(p+i\vec v)+(1-t)(p+j\vec v)
+\]
+\[
+ =tp+ti\vec v+(1-t)p+(1-t)j\vec v=\bigl(ti+(1-t)j\bigr)\vec v.]
+\]
+\end{comment}
+
+\begin{definition}
+A map $f:L\to M$ between two $\Z$-affine lines is $\Z$-\emph{affine} if it satisfies 
+\[
+ f(tr+(1-t)s)=tf(r)+(1-t)f(s)
+\] 
+for all $r,s\in L, t\in\Z$. 
+\end{definition}
+
+\begin{lemma}\label{lem:cat}
+\begin{enumerate}
+  \item[\emph{(a)}] The identity of a $\Z$-affine line is $\Z$-affine.
+  \item[\emph{(b)}] If $f:L\to M$ and $g:M\to N$ are $\Z$-affine maps between $\Z$-affine lines, then the composition $g\circ f:L\to N$ is $\Z$-affine.
+  \item[\emph{(c)}] Assume $L\subset\Z^\ell$ and $M\subset\Z^m$ are $\Z$-affine lines, and let $f:\Z^\ell\to\Z^m$ be $\Z$-linear and map $L$ into $M$. Then the restriction $f|_L:L\to M$ is $\Z$-affine.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Parts (a) is obvious. To prove (b) let $p,q\in L,t\in\Z$ and write 
+\[
+ g(f(tp+(1-t)q))=g(tf(p)+(1-t)f(q))
+\]
+\[
+ =tg(f(p))+(1-t)g(f(q)).
+\]
+For (c), let $r,s\in L$ and $t\in\Z$. Since $f$ is $\Z$-linear,
+\[
+ f(tr+(1-t)s)=tf(r)+(1-t)f(s).
+\]
+Since $f(L)\subset M$, this is precisely the defining identity for the restriction $f|_L:L\to M$ to be $\Z$-affine.
+\end{proof}
+
+\begin{lemma}\label{lem:parametrization}
+If a $\Z$-affine map between $\Z$-affine lines $f:L\to M$ is bijective, then its inverse is $\Z$-affine. Moreover, if we have $L=p+\Z\vec{v}$ as in Definition~\ref{def:Z-affine-line}, then the map $\varphi:\Z\to L, t\mapsto p+t\vec{v}$ is a $\Z$-affine bijection. 
+\end{lemma}
+
+\begin{proof}
+Write $M=q+\Z\vec w$. Since $f(p)\in M$ and $f(p+\vec v)\in M$, there are integers $\ell,m$ such that
+\[
+ f(p)=q+\ell\vec w,\qquad
+ f(p+\vec v)=q+(\ell+m)\vec w.
+\]
+The affine identity, applied with $r=p+\vec v$ and $s=p$, gives
+\[
+ f(p+t\vec v)=t f(p+\vec v)+(1-t)f(p)
+             =q+(\ell+tm)\vec w
+ \qquad(t\in\Z).
+\]
+Since $f$ is bijective, the integers $\ell+tm$ range over all of $\Z$. Hence $m=\pm1$. It follows that
+\[
+ f^{-1}(q+n\vec w)=p+\frac{n-\ell}{m}\vec v
+ \qquad(n\in\Z),
+\]
+which is an affine function of the integer coordinate $n$. Thus $f^{-1}$ is $\Z$-affine.
+
+For the last assertion, the map $\varphi(t)=p+t\vec v$ is plainly bijective. For $i,j,t\in\Z$, we have
+\[
+ \begin{aligned}
+ \varphi\bigl(ti+(1-t)j\bigr)
+ &=p+\bigl(ti+(1-t)j\bigr)\vec v\\
+ &=t(p+i\vec v)+(1-t)(p+j\vec v)\\
+ &=t\varphi(i)+(1-t)\varphi(j),
+ \end{aligned}
+\]
+so $\varphi$ is $\Z$-affine.
+\end{proof}
+
+\begin{comment}
+[Details for the proof of Lemma~\ref{lem:parametrization}:]
+\[
+ tr+(1-t)s=t(p+\vec v)+(1-t)p=p+t\vec v,
+\]
+\[
+ t f(p+\vec v)+(1-t)f(p)=t(q+(\ell+m)\vec w)+(1-t)(q+\ell\vec w)
+\]
+\[
+ =q+(\ell+tm)\vec w.]
+\]
+\end{comment}
+
+We say that the map $f$ is a \emph{parametrization} of $L$.
+
+\begin{lemma}\label{lem:endo}
+A map $f:\Z\to\Z$ is $\Z$-affine if and only if it is of the form $t\mapsto at+b$ with $a,b\in\Z$. Furthermore, $t\mapsto at+b$ is bijective if and only if $a=\pm1$.
+\end{lemma}
+
+\begin{proof}
+Suppose first that $f$ is $\Z$-affine. Taking $r=1$ and $s=0$ in the defining identity, we obtain
+\[
+ f(t)=f(t\cdot1+(1-t)\cdot0)
+     =tf(1)+(1-t)f(0)
+ \qquad(t\in\Z).
+\]
+Thus $f(t)=at+b$, where $a=f(1)-f(0)$ and $b=f(0)$.
+
+Conversely, suppose that $f(t)=at+b$ with $a,b\in\Z$. For all $r,s,t\in\Z$, we have
+\[
+ \begin{aligned}
+ f(tr+(1-t)s)
+ &=a(tr+(1-t)s)+b\\
+ &=t(ar+b)+(1-t)(as+b)\\
+ &=tf(r)+(1-t)f(s),
+ \end{aligned}
+\]
+so $f$ is $\Z$-affine.
+
+Finally, if $f(t)=at+b$, then $f$ is bijective if and only if multiplication by $a$ is bijective, which happens if and only if $a=\pm1$.
+\end{proof}
+
+From now on, ``affine'' shall mean ``$\Z$-affine''. These definitions and lemmas will often be used implicitly.
+
+\section{Chains and Bézout parametrizations}
+
+For coprime integers $a,b$, write
+\begin{equation}\label{eq:Bab}
+  \B(a,b)=\{(x,y)\in\Z^2: ax+by=1\}.
+\end{equation}
+
+\begin{proposition}\label{prop:affine-line}
+The set $\B(a,b)$ is an affine line. Assume now that $a,b$ are coprime and \emph{nonzero}. If $X$ is the set of all the integers $x$ such that $ax\equiv1\pmod b$, and $Y$ is the set of all the integers $y$ such that $by\equiv1\pmod a$, then the maps 
+\begin{equation}\label{eq:two-maps}
+ \begin{aligned}
+ X\to \B(a,b),\quad x\mapsto(x,(1-ax)/b),\\
+ Y\to \B(a,b),\quad y\mapsto((1-by)/a,y)
+ \end{aligned}
+\end{equation}
+are affine bijections. 
+\end{proposition}
+
+\begin{proof}
+We prove that $\B(a,b)$ is an affine line. The extended Euclidean algorithm provides a solution $p\in\B(a,b)$. We claim 
+\begin{equation}\label{eq:affine-line}
+ \B(a,b)=p+\Z(-b,a).
+\end{equation}
+Indeed, if two points of $\B(a,b)$ differ by $(u,v)$, then $au+bv=0$; coprimality implies $(u,v)=k(-b,a)$ for some $k\in\Z$. This entails the claim. To prove that $\B(a,b)$ is an affine line, it suffices to set $q=p+(-b,a)$ and to invoke Definition~\ref{def:Z-affine-line}. The verification that the maps \eqref{eq:two-maps} are affine is a routine calculation. They are bijective by \eqref{eq:affine-line}.
+\end{proof} 
+
+\begin{definition}\label{def:EuclChain}
+Let
+\[
+ \E_2=\{(a,b)\in(\Z\setminus\{0\})^2:
+          \gcd(a,b)=1,\ |a|\ne |b|\}.
+\]
+For $n\geq 3$, an $n$-tuple $(a_1,\ldots,a_n)$ is a \emph{Euclidean chain} if
+\begin{enumerate}[label=(\roman*),leftmargin=2.2em]
+  \item $(a_i,a_{i+1})\in\E_2$ for $1\leq i<n$;
+  \item $a_i$ divides $a_{i-1}-a_{i+1}$ for $2\leq i<n$.
+\end{enumerate}
+We denote by $\E_n$ the set of Euclidean $n$-chains. An element of $\E_2$ is also called a Euclidean $2$-chain.
+\end{definition}
+
+Thus, a triple $(a,b,c)$ is a Euclidean chain precisely when $(a,b),(b,c)\in\E_2$ and $b\mid a-c$. For such a triple, put
+\[
+ q=\frac{a-c}{b}.
+\]
+If $(x,y)\in\B(b,c)$, then
+\[
+  1=bx+cy=bx+(a-qb)y=ay+b(x-qy),
+\]
+so $(y,x-qy)\in\B(a,b)$. Therefore, the $\Z$-linear automorphism of $\Z^2$ which sends $(x,y)$ to $(y,x-qy)$, and whose inverse is given by $(u,v)\mapsto(v+qu,u)$, induces an affine bijection (Lemma~\ref{lem:cat}(c))
+\begin{equation}\label{eq:back-substitution}
+ T_{a,b,c}:\B(b,c)\longrightarrow\B(a,b),
+ \qquad (x,y)\longmapsto(y,x-qy).
+\end{equation}
+This is the usual back-substitution map associated with the relation $a=qb+c$.
+
+\section{Canonical coordinates on a Bézout line}
+
+Recall that the $L^1$-norm on $\Z^2$ is defined by
+\[
+ \normone{(x,y)}=|x|+|y|.
+\]
+The parametrization 
+\[
+p_{a,b}:\Z\to\B(a,b),\quad t\mapsto p_{a,b}(0)+t\vec{D}(a,b)
+\]
+of the Bézout line $\B(a,b)$ needed below is determined by the solution $p_{a,b}(0)$ of smallest $L^1$-norm and the direction vector
+\[
+ \vec{D}(a,b)=D(a,b)(-b,a),
+\]
+with $D(a,b)=\pm1$, this sign being chosen such that $p_{a,b}(0)+\vec{D}(a,b)$ is the smallest $L^1$-norm solution in $\B(a,b)\setminus\{p_{a,b}(0)\}$. The parametrization will be defined in \eqref{eq:canonical}. Since we shall often use the signum function $\sgn$, it will be convenient to denote it by $\eps$. More precisely, if $t$ is a nonzero integer, we set 
+\begin{equation}\label{eq:eps}
+ \eps(t)=
+ \begin{cases}
+   1,&t>0,\\
+   -1,&t<0.
+ \end{cases}
+\end{equation}
+
+\begin{proposition}\label{prop:p0}
+For every $(a,b)\in\E_2$ (see Definition~\ref{def:EuclChain}), there is a unique point $p_{a,b}(0)=(x_0,y_0)\in\B(a,b)$ such that
+\begin{enumerate}
+  \item[\emph{(a)}] $\normone{p_{a,b}(0)}<(|a|+|b|)/2$,
+  \item[\emph{(b)}] we have $|x_0|\le|b|/2$ with equality if and only if $|b|=2$,
+  \item[\emph{(c)}] we have $|y_0|\le|a|/2$ with equality if and only if $|a|=2$.
+\end{enumerate}
+For any odd integer $t$ set $t'=(|t|-1)/2$. When $|b|\le2$, the solution $(x_0,y_0)$ is defined by
+\begin{equation}\label{eq:x0y0}
+ (x_0,y_0)=
+ \begin{cases}
+   (0,b),               &|b|=1,\\
+   (\eps(a),-\eps(b)a'),&|b|=2.
+ \end{cases}
+\end{equation}
+For $|a|\le2$, the symmetric formulas are
+\begin{equation}\label{eq:x0y0-symmetric}
+ (x_0,y_0)=
+ \begin{cases}
+  (a,0),&|a|=1,\\
+  (-\eps(a)b',\eps(b)),&|a|=2,
+ \end{cases}
+\end{equation}
+where $b'=(|b|-1)/2$ (and $b$ is odd when $|a|=2$).
+\end{proposition}
+
+\begin{proof}
+Conditions (b) and (c) imply
+\[
+ \normone{p_{a,b}(0)}=|x_0|+|y_0|
+ \le\frac{|a|+|b|}{2}.
+\]
+Equality would require both $|x_0|=|b|/2$ and $|y_0|=|a|/2$, hence $|a|=|b|=2$, which contradicts $\gcd(a,b)=1$. Thus (a) follows.
+
+To see uniqueness, suppose that $(x,y)\in\B(a,b)$ is another solution. By \eqref{eq:affine-line}, there is a nonzero integer $k$ such that
+\[
+ (x,y)=(x_0-kb,y_0+ka).
+\]
+Using (b) and (c), we obtain
+\[
+ |x|\ge |k||b|-|x_0|\ge\frac{|b|}{2},
+ \qquad
+ |y|\ge |k||a|-|y_0|\ge\frac{|a|}{2}.
+\]
+At least one of $|a|$ and $|b|$ differs from $2$, since $a$ and $b$ are coprime. The corresponding condition among (b) and (c) requires a strict inequality, and the displayed lower bounds contradict it. Thus no other solution can satisfy both (b) and (c). It remains only to prove the existence of $(x_0,y_0)$ satisfying these two conditions.
+
+If $|a|\le2$ or $|b|\le2$, direct substitution verifies (b) and (c) for the formulas in \eqref{eq:x0y0} and \eqref{eq:x0y0-symmetric}.
+
+If $|a|,|b|>2$, there is an $x_0$ such that 
+\[
+ ax_0\equiv1\pmod b,\qquad |x_0|\le|b|/2.
+\]
+Since $ax_0\equiv1\pmod b$, we have $\gcd(x_0,b)=1$. If $|b|$ is odd, integrality and $|x_0|\le|b|/2$ give
+\[
+ |x_0|\le\frac{|b|-1}{2}.
+\]
+If $|b|$ is even, the only possible equality in $|x_0|\le|b|/2$ would be $x_0=\pm|b|/2$. But $|b|>2$, so neither of these integers is coprime to $b$. Thus the same bound holds in this case as well. Set $y_0=(1-ax_0)/b$. It is enough to show $|y_0|<|a|/2$. We now have $|x_0|\le(|b|-1)/2$, and hence
+\[
+ |y_0|=\frac{|ax_0-1|}{|b|}\le\frac{|ax_0|+1}{|b|}\le\frac{|a| \frac{|b|-1}{2} +1}{|b|}=\frac{|ab|-|a|+2}{2|b|}
+\]
+\[
+ =\frac{|a|}{2}-\frac{|a|-2}{2|b|}<\frac{|a|}{2}.
+\]
+\end{proof}
+
+\begin{lemma}\label{lem:Dab}
+If $(a,b)\in\E_2$ and $(x,y)\in\B(a,b)$ with $x\ne0\ne y$, then $\eps(bx)=-\eps(ay)$.
+\end{lemma}
+
+\begin{proof}
+Since the nonzero integers $ax$ and $by$ add up to $1$, they have opposite signs. Thus, $\eps(ax)=-\eps(by)$, which gives
+\[
+ -1=\eps(axby)=\eps(ay)\eps(bx).
+\]
+\end{proof}
+
+Given $(a,b)\in\E_2$, we use Proposition~\ref{prop:p0} and Lemma~\ref{lem:Dab} to set   
+\begin{equation}\label{eq:Dab}
+ D(a,b)=
+ \begin{cases}
+  \eps(bx_0),&x_0\ne0,\\
+  -\eps(ay_0),&y_0\ne0.
+ \end{cases}
+\end{equation}
+When $x_0\ne0\ne y_0$, both cases in \eqref{eq:Dab} apply. Lemma~\ref{lem:Dab} gives
+\[
+ \eps(bx_0)=-\eps(ay_0),
+\]
+so the two prescribed values agree. At least one of $x_0,y_0$ is nonzero, since $ax_0+by_0=1$. Thus $D(a,b)$ is well-defined and belongs to $\{\pm1\}$.
+
+We also define the direction vector
+\[
+\vec{D}(a,b)=D(a,b)(-b,a)\in\Z^2
+\]
+and the parametrization
+\begin{equation}\label{eq:canonical}
+ p_{a,b}:\Z\to\B(a,b),\quad t\mapsto p_{a,b}(0)+t\vec{D}(a,b).
+\end{equation}
+This is easily seen to be an affine bijection (see the proof of Proposition~\ref{prop:affine-line}). The parametrization \eqref{eq:canonical} was chosen so that the $L^1$-norm of $p_{a,b}(1)$ is smaller than that of $p_{a,b}(-1)$.
+
+\begin{lemma}\label{lem:norm-profile}
+Put $S=|a|+|b|$ and $N=\normone{p_{a,b}(0)}$. For every nonzero integer $t$, we have
+\begin{equation}\label{eq:norm-profile}
+ \normone{p_{a,b}(t)}=
+ \begin{cases}
+  tS-N,&t\ge1,\\
+  |t|S+N,&t\le-1.
+ \end{cases}
+\end{equation}
+In particular,
+\[
+ \normone{p_{a,b}(0)}+\normone{p_{a,b}(1)}=|a|+|b|,
+\]
+and $p_{a,b}(1)$ is the unique smallest-norm solution in
+$\B(a,b)\setminus\{p_{a,b}(0)\}$.
+\end{lemma}
+
+\begin{proof}
+Write $p_{a,b}(0)=(x_0,y_0)$. By the definition of $D(a,b)$ in \eqref{eq:Dab},
+\[
+ \eps(D(a,b)b)=\eps(x_0)\quad\text{if }x_0\ne0.
+\]
+For the second sign identity, if $x_0=0$ and $y_0\ne0$, it follows directly from the second case of \eqref{eq:Dab}. If $x_0\ne0\ne y_0$, Lemma~\ref{lem:Dab} gives $\eps(bx_0)=-\eps(ay_0)$; since $D(a,b)=\eps(bx_0)$, this implies
+\[
+ \eps(D(a,b)a)=-\eps(y_0)\quad\text{if }y_0\ne0.
+\]
+Since $|x_0|\le|b|/2$ and $|y_0|\le|a|/2$, it follows that
+\[
+ |x_0-tD(a,b)b|=
+ \begin{cases}
+  t|b|-|x_0|,&t\ge1,\\
+  |t||b|+|x_0|,&t\le-1,
+ \end{cases}
+\]
+Similarly,
+\[
+ |y_0+tD(a,b)a|=
+ \begin{cases}
+  t|a|-|y_0|,&t\ge1,\\
+  |t||a|+|y_0|,&t\le-1.
+ \end{cases}
+\]
+These formulas also hold when the corresponding coordinate of $p_{a,b}(0)$ is zero. Adding them proves the asserted norm formula.
+
+Also $N>0$, since $ax_0+by_0=1$. Now $N<S/2$ by Proposition~\ref{prop:p0}, so
+\[
+ \normone{p_{a,b}(0)}=N<S-N=\normone{p_{a,b}(1)}.
+\]
+For $t\ge2$ the displayed formula gives a norm strictly larger than $S-N$, while for $t\le-1$ it gives a norm at least $S+N>S-N$. Thus $p_{a,b}(1)$ is the unique smallest-norm solution other than $p_{a,b}(0)$.
+\end{proof}
+
+Equality \eqref{eq:norm-profile} shows that the $L^1$-norms of the points $p_{a,b}(t)$ of the Bézout line $\B(a,b)$ form two intertwined arithmetic progressions of common difference $S$. More precisely, setting $N_t=\normone{p_{a,b}(t)}$, the arithmetic progressions are
+\[
+N_{-t}=N+tS,\quad t\ge0,
+\]
+\[
+N_t=-N+tS,\quad t>0.
+\]
+The arithmetic progressions are intertwined in the sense that the chain of inequalities
+\[
+0<N<\frac{S}{2}<N_1<S<N_{-1}<\frac{3S}{2}<N_2<2S<N_{-2}<\frac{5S}{2}<\cdots
+\]
+holds. Indeed, for $t\ge1$ we have by \eqref{eq:norm-profile}
+\[
+ 0<N=tS-N_t<\frac{S}{2},
+\]
+that is,
+\begin{equation}\label{eq:Nt}
+ \frac{2t-1}{2}S<N_t<tS,
+\end{equation}
+and similarly
+\[
+ 0<N=N_{-t}-tS<\frac{S}{2},
+\]
+that is,
+\begin{equation}\label{eq:N-t}
+ tS<N_{-t}<\frac{2t+1}{2}S.
+\end{equation}
+Splicing \eqref{eq:Nt} and \eqref{eq:N-t} yields
+\[
+ \frac{2t-1}{2}S<N_t<tS<N_{-t}<\frac{2t+1}{2}S.
+\]
+
+\section{The affine map associated with one step}
+
+Let $\Aff(\Z)$ denote the group of affine automorphisms of $\Z$, namely the maps $t\mapsto\pm t+m$ with $m\in\Z$ (see Lemma~\ref{lem:endo}). For a Euclidean triple $(a,b,c)\in\E_3$ (see Definition~\ref{def:EuclChain}), the map
+\begin{equation}\label{eq:gabc}
+ g_{a,b,c}
+ =p_{a,b}^{-1}\circ T_{a,b,c}\circ p_{b,c}
+\end{equation}
+(see \eqref{eq:back-substitution} and \eqref{eq:canonical}) is in $\Aff(\Z)$ because it is the composition of three affine bijections (Lemmas~\ref{lem:cat}(b) and \ref{lem:parametrization}). By \eqref{eq:gabc} we have
+\begin{equation}\label{eq:local-map}
+ T_{a,b,c}\bigl(p_{b,c}(t)\bigr)
+ =p_{a,b}\bigl(g_{a,b,c}(t)\bigr)
+ \qquad(t\in\Z).
+\end{equation}
+
+Let $\rho_0$ and $\rho_{1/2}$ be the reflections
+\[
+ \rho_0(t)=-t,
+ \qquad
+ \rho_{1/2}(t)=1-t.
+\]
+Recall the definition of $\eps$ and $D(a,b)$ in \eqref{eq:eps} and \eqref{eq:Dab}.
+
+\begin{proposition}\label{prop:local}
+For every Euclidean triple $(a,b,c)$,
+\[
+ g_{a,b,c}=
+ \begin{cases}
+  \rho_0,& |b|=1\text{ and }ac<0,\\
+  \rho_{1/2},& |b|=2\text{ and }ac<0,\\
+  \id,&\text{otherwise.}
+ \end{cases}
+\]
+In other words, we have 
+\begin{equation}\label{eq:local-classification}
+g_{a,b,c}=
+ \begin{cases}
+  \eps(ac)t,& |b|=1,\\
+  \eps(ac)t+(1-\eps(ac))/2,& |b|=2,\\
+  \id,& |b|>2.
+ \end{cases} 
+\end{equation}
+\end{proposition}
+
+Using notation \eqref{eq:canonical}, we put 
+\[
+(u_0,v_0)=p_{b,c}(0),\quad (x_0,y_0)=p_{a,b}(0).
+\]
+In this notation, the coordinate projections needed below are
+\[
+ \begin{aligned}
+ \pi_{a,b,1}&:\B(a,b)\longrightarrow x_0+b\Z,
+ &(x,y)&\longmapsto x,\\
+ \pi_{b,c,2}&:\B(b,c)\longrightarrow v_0+b\Z,
+ &(u,v)&\longmapsto v.
+ \end{aligned}
+\]
+They are affine bijections by Proposition~\ref{prop:affine-line} and Lemma~\ref{lem:parametrization}. Their target cosets are equal: indeed, $b\mid a-c$, and
+\[
+ ax_0\equiv1\pmod b,\qquad cv_0\equiv1\pmod b.
+\]
+Consequently $av_0\equiv cv_0\equiv1\equiv ax_0\pmod b$, so
+$b\mid a(x_0-v_0)$. Since $\gcd(a,b)=1$, we conclude that
+\[
+ x_0\equiv v_0\pmod b,
+ \qquad x_0+b\Z=v_0+b\Z.
+\]
+In particular, $(x_0-v_0)/b$ is an integer.
+
+\begin{lemma}\label{lem:gabc}
+In the above setting, we have 
+\[
+ g_{a,b,c}(t)=-D(a,b)D(b,c)t+D(a,b)\frac{x_0-v_0}{b}
+\]
+for all $t\in\Z$.
+\end{lemma}
+
+\begin{proof}
+Composing the affine bijections given by the parametrization
+\[
+ p_{a,b}:\Z\to\B(a,b)
+\]
+(see \eqref{eq:canonical}) and the first canonical projection
+\[
+ \pi_{a,b,1}:\B(a,b)\to x_0+b\Z
+\]
+(see \eqref{eq:two-maps}), we get an affine bijection
+\[
+ q:\Z\to x_0+b\Z,\quad t\mapsto x_0-D(a,b)tb.
+\]
+Defining  
+\[
+ r:\Z\to v_0+b\Z,\quad t\mapsto v_0+D(b,c)tb
+\]
+similarly gives rise to the diagram 
+\[
+\begin{tikzcd}
+\B(b,c)\arrow[rrr,"T_{a,b,c}"]\arrow[dd,"\pi_{b,c,2}"'] & & & \B(a,b)\arrow[dd,"\pi_{a,b,1}"] \\
+ & \Z\arrow[ul,"p_{b,c}"']\arrow[r,"g_{a,b,c}"]\arrow[dl,"r"] & \Z\arrow[ur,"p_{a,b}"]\arrow[dr,"q"'] & \\
+v_0+b\Z\arrow[rrr,"\id"'] & & & x_0+b\Z
+\end{tikzcd}
+\]
+We claim that the bottom trapezoid commutes, that is: $r=q\circ g_{a,b,c}$. Indeed, we have 
+\[
+ r=\pi_{b,c,2}\circ p_{b,c},
+\]
+\[
+ q\circ g_{a,b,c}=\pi_{a,b,1}\circ p_{a,b}\circ g_{a,b,c}=\pi_{a,b,1}\circ T_{a,b,c}\circ p_{b,c}=\pi_{b,c,2}\circ p_{b,c}=r,
+\]
+where the equality
+\[
+ \pi_{a,b,1}\circ T_{a,b,c}=\pi_{b,c,2}
+\]
+is justified by the computation
+\[
+ \pi_{a,b,1}(T_{a,b,c}(u,v))=\pi_{a,b,1}(v,u-qv)=v=\pi_{b,c,2}(u,v)
+\]
+(see \eqref{eq:back-substitution}). This proves the claim. 
+
+Here is a ``proof in words'' of the claim. In the above diagram, the top trapezoid, the two triangles, and the outer rectangle commute. So, the bottom trapezoid commutes too. More precisely:
+\begin{enumerate}
+  \item the top trapezoid commutes by definition of $g_{a,b,c}$,
+  \item the left triangle commutes by definition of $r$,
+  \item the right triangle commutes by definition of $q$,
+  \item the outer rectangle commutes by definition of $T_{a,b,c}$.
+\end{enumerate}
+
+The claim implies that, for $t\in\Z$ and $s=g_{a,b,c}(t)$, we have $q(s)=r(t)$, and thus
+\[
+ x_0-D(a,b)sb=v_0+D(b,c)tb,
+\]
+\[
+ D(a,b)sb=x_0-v_0-D(b,c)tb,
+\]
+\[
+ sb=D(a,b)(x_0-v_0-D(b,c)tb),
+\]
+\[
+ s=D(a,b)\left(\frac{x_0-v_0}{b}-D(b,c)t\right)
+\]
+\[
+ =D(a,b)\frac{x_0-v_0}{b}-D(a,b)D(b,c)t.
+\]
+\end{proof}
+
+\begin{proof}[Proof of Proposition~\ref{prop:local}] 
+Using \eqref{eq:x0y0}, we record, in the table below, the values of 
+\[
+ x_0,y_0,u_0,v_0,D(a,b),D(b,c),D(a,b)D(b,c)
+\]
+that will be needed. We abbreviate $D(a,b)D(b,c)$ by $DD$. Recall the notation $t'=(|t|-1)/2$.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|c|c|}
+    \hline
+    $|b|$ &   $x_0$   & $y_0$        & $u_0$        &   $v_0$   & $D(a,b)$     &   $D(b,c)$    &    $DD$     \\ \hline
+      1   &   0       &  $b$         &  $b$         &     0     & $-\eps(ab)$  &  $\eps(bc)$   & $-\eps(ac)$ \\ \hline
+      2   & $\eps(a)$ & $-\eps(b)a'$ & $-\eps(b)c'$ & $\eps(c)$ & $\eps(ab)$   & $-\eps(bc)$   & $-\eps(ac)$ \\ \hline
+     $>2$ &   $x_0$   &              &              &   $x_0$   & $\eps(bx_0)$ & $-\eps(bx_0)$ & $-1$ \\ \hline
+    \end{tabular}
+\end{table}
+
+The equality $x_0=v_0$ when $|b|>2$ can be justified as follows: $x_0$ and $v_0$ are characterized by the conditions
+\[
+ ax_0\equiv1\pmod b,\qquad |x_0|<|b|/2,
+\]
+\[
+ cv_0\equiv1\pmod b,\qquad |v_0|<|b|/2
+\]
+(see (b) and (c) in Proposition~\ref{prop:p0}), and the congruence
+\[
+ a\equiv c\pmod b
+\]
+implies $x_0=v_0$. Moreover, $x_0\ne0$, since $ax_0\equiv1\pmod b$. Thus
+$D(a,b)=\eps(bx_0)$. If $u_0\ne0$, Lemma~\ref{lem:Dab} applied to $(b,c)$ gives
+$D(b,c)=\eps(cu_0)=-\eps(bv_0)$. If $u_0=0$, the definition of $D(b,c)$ gives the same formula directly. Since $v_0=x_0$, we obtain
+\[
+ D(b,c)=-\eps(bx_0).
+\]
+This justifies the last two entries in the row $|b|>2$ of the table.
+
+For $|b|=2$ we have
+\[
+ D(a,b)\frac{x_0-v_0}{b}=\eps(ab)\frac{\eps(a)-\eps(c)}{b}=\frac{\eps(a)-\eps(c)}{2\eps(a)}=\frac{1-\eps(ac)}{2}.
+\]
+Now \eqref{eq:local-classification}, and thus Proposition~\ref{prop:local}, follows from Lemma~\ref{lem:gabc}.
+\end{proof}
+
+\section{The affine group of the integer line}
+
+For $m\in\Z$, let $\tau_m(k)=k+m$ be the translation by $m$, and let $\rho_{m/2}(k)=m-k$ be the reflection about $m/2$. Every element of $\Aff(\Z)$ (the group of affine automorphisms of $\Z$) is exactly one of these maps, with a unique parameter $m$.
+
+\begin{lemma}\label{lem:words}
+For any $g\in\Aff(\Z)$, there is a unique triple $(r,s,t)$ of nonnegative integers such that $r,t\in\{0,1\}$ and 
+\[
+ g=\rho_0^r(\rho_{1/2}\rho_0)^s\rho_{1/2}^t.
+\]
+ More precisely, we have:
+\[
+\rho_0^0(\rho_{1/2}\rho_0)^0\rho_{1/2}^0=\id,\quad \rho_0^0(\rho_{1/2}\rho_0)^k\rho_{1/2}^0=\tau_k,
+\] 
+\[
+\rho_0^1(\rho_{1/2}\rho_0)^{k-1}\rho_{1/2}^1=\tau_{-k},\quad \rho_0^0(\rho_{1/2}\rho_0)^{k-1}\rho_{1/2}^1=\rho_{k/2}
+\] 
+for $k>0$, and 
+\[
+\rho_0^1(\rho_{1/2}\rho_0)^k\rho_{1/2}^0=\rho_{-k/2}
+\] 
+for $k\ge0$.  
+\end{lemma}
+
+\begin{proof}
+The displayed identities follow by composing the two reflections, using
+\[
+ \rho_0\circ\rho_{1/2}=\tau_{-1},
+ \qquad
+ \rho_{1/2}\circ\rho_0=\tau_1.
+\]
+They account for all cases. Indeed, every affine automorphism is uniquely either a translation $\tau_m$ or a reflection $\rho_{m/2}$. The identity is the case $m=0$ for translations; positive and negative translation parameters are covered by the first two nonidentity formulas. Positive and nonpositive reflection parameters are covered by the last two formulas. Since the type and the integer parameter $m$ are unique, the triple $(r,s,t)$ is unique as well.
+\end{proof}
+
+\ifbool{scribe}{
+    \section[Realizing affine maps by Euclidean chains]{Realizing affine maps by Euclidean\\ chains}
+}{
+    \section{Realizing affine maps by Euclidean chains}
+}
+
+If $(a_1,\ldots,a_n)$ is a Euclidean chain (Definition~\ref{def:EuclChain}), define its induced affine automorphism of $\Z$ by
+\begin{equation}\label{eq:chain-map}
+ G(a_1,\ldots,a_n)=
+ \begin{cases}
+  g_{a_1,a_2,a_3}\circ\cdots\circ g_{a_{n-2},a_{n-1},a_n},&n\geq3,\\
+  \id,&n=2.
+ \end{cases}
+\end{equation}
+Here composition is ordinary function composition, so the rightmost map acts first. When terms are appended to a chain ending in $a_j$, the new local factors (see \eqref{eq:gabc}) are appended on the right, in increasing order of their middle indices.
+
+\begin{lemma}
+\label{lem:append-one}
+Let $(a_1,\ldots,a_j)$ be a Euclidean chain with $|a_j|=1$. For $r,t\in\{0,1\}$ and $s\geq0$, the chain $(a_1,\ldots,a_j)$ can be extended to a Euclidean chain ending in a term of absolute value one such that the product of the new local maps is
+\[
+ \rho_0^r(\rho_{1/2}\rho_0)^s\rho_{1/2}^t.
+\]
+More precisely, if $r=s=t=0$, no extension is needed. Otherwise set
+\[
+ n=j+2+2s,\qquad a_{j+1}=(-1)^r2\eps(a_{j-1})
+\]
+(see \eqref{eq:eps} for the definition of $\eps$), then define
+\[
+ a_i=-a_{i-2}\quad(j+2\leq i<n),
+ \qquad a_n=(-1)^t a_{n-2}.
+\]
+Thus, for $j\leq i\leq n-3$ (an empty range when $s=0$),
+\[
+ a_{i+2}=-a_i.
+\]
+The range $j+2\leq i<n$ in the recurrence is empty when $s=0$.
+\end{lemma}
+
+\begin{proof}
+If $r=s=t=0$, the assertion is immediate. Otherwise, the new terms alternate in absolute value between $2$ and $1$, and the last term has absolute value one. The triple centered at $a_j$ contributes $\rho_0$ precisely when $r=1$: its outer terms have opposite signs exactly in that case. For each $\ell=0,\ldots,s-1$, the centers $a_{j+1+2\ell}$ and $a_{j+2+2\ell}$ contribute, respectively, $\rho_{1/2}$ and $\rho_0$, because their outer terms are opposite. The final center $a_{n-1}$ has absolute value $2$ and contributes $\rho_{1/2}$ precisely when $t=1$; its outer terms are equal when $t=0$ and opposite when $t=1$. Hence, the product of the new local maps (see \eqref{eq:gabc}) is the asserted element.
+
+Every new adjacent pair is coprime and has unequal absolute values. The divisibility condition is automatic at a center of absolute value one. At every new center of absolute value two, both outer terms have absolute value one, so their difference is divisible by two. This verifies that the extension is a Euclidean chain.
+\end{proof}
+
+\begin{theorem}\label{thm:realization}
+Let $(a,b)\in\E_2$ (Definition~\ref{def:EuclChain}) satisfy $|a|>|b|$, and let $g\in\Aff(\Z)$ be an affine automorphism of $\Z$. There is an explicit algorithm that constructs a Euclidean chain
+\[
+ (a_1,\ldots,a_n)\in\E_n
+\]
+such that
+\[
+ a_1=a,\qquad a_2=b,\qquad |a_n|=1,
+ \qquad G(a_1,\ldots,a_n)=g.
+\]
+(See \eqref{eq:chain-map} for the definition of $G(a_1,\ldots,a_n)$.)
+\end{theorem}
+
+\begin{proof}
+We first use centered remainders to reach a term of absolute value at most $2$. Set $a_1=a$ and $a_2=b$. Whenever $|a_i|>2$, choose the unique integer $q_i$ such that
+\[
+ a_{i+1}=a_{i-1}-q_i a_i,
+ \qquad |a_{i+1}|<\frac{|a_i|}{2}.
+\]
+The choice is possible by taking the centered representative of $a_{i-1}$ modulo $a_i$. It is unique because a half-divisor remainder is impossible when $\gcd(a_{i-1},a_i)=1$ and $|a_i|>2$. The remainder is nonzero and prime to $a_i$, and its absolute value is strictly smaller than $|a_i|$. Thus each new adjacent pair belongs to $\E_2$, and each new triple satisfies the divisibility condition by construction. The absolute values strictly decrease, so the process stops at some $k\geq2$ with $|a_k|\leq2$. Every middle term in this initial segment has absolute value greater than $2$, so Proposition~\ref{prop:local} shows that its induced map is the identity.
+
+If $|a_k|=1$, set $j=k$. 
+
+If $|a_k|=2$, then set $j=k+1, a_j=\eps(a_{j-2})$. To check that $(a_{j-2},a_{j-1},a_j)\in\E_3$, observe that $a_{j-2}$ is odd because it is prime to $a_{j-1}$, which is $\pm2$. Also note that the last local map (see \eqref{eq:gabc}) is the identity by Proposition~\ref{prop:local}. 
+
+In either case, we can apply Lemmas~\ref{lem:words} and \ref{lem:append-one}. The extension has final term of absolute value one and contributes the desired affine map. Since the initial segment contributes the identity, the entire chain has induced map $g$.
+\end{proof}
+
+\begin{corollary}
+Let $(a,b)\in\E_2$ with $|a|>|b|$. Every solution of $ax+by=1$ is obtained by back substitution along some Euclidean chain beginning with $(a,b)$ and ending with a term of absolute value $1$.
+\end{corollary}
+
+\begin{proof}
+Let $z\in\B(a,b)$. There is a unique $m\in\Z$ such that $z=p_{a,b}(m)$ (see \eqref{eq:canonical}). Apply Theorem~\ref{thm:realization} to the translation $\tau_m(k)=k+m$. The resulting chain ends with $|a_n|=1$. Since
+\[
+ p_{a_{n-1},a_n}(0)=(0,a_n),
+\]
+repeated application of the commuting identities in \eqref{eq:local-map} sends this terminal solution to
+\[
+ p_{a,b}\bigl(G(a_1,\ldots,a_n)(0)\bigr)
+ =p_{a,b}(\tau_m(0))
+ =p_{a,b}(m)=z.
+\]
+\end{proof}
+
+\section{Two consequences}
+
+\begin{corollary}
+Let $a>b>0$ be coprime, and let
+\[
+ a_1=a,\ a_2=b,\ \ldots,\ a_n=1
+\]
+be the positive Euclidean algorithm, stopped at the first occurrence of $1$. Then
+\[
+ G(a_1,\ldots,a_n)=\id
+\]
+(see \eqref{eq:chain-map}), and ordinary back substitution gives the distinguished solution $p_{a,b}(0)$ (Proposition~\ref{prop:p0}).
+\end{corollary}
+
+\begin{proof}
+Every triple in the positive Euclidean chain (Definition~\ref{def:EuclChain}) has positive outer terms. Proposition~\ref{prop:local} therefore makes every local map the identity. At the final pair, $p_{a_{n-1},1}(0)=(0,1)$. Applying back substitution and using \eqref{eq:local-map} shows that its image in $\B(a,b)$ is $p_{a,b}(0)$ (see \eqref{eq:Bab} and \eqref{eq:canonical}).
+\end{proof}
+
+\begin{corollary}
+Suppose $(a_1,\ldots,a_n)$ is a Euclidean chain such that
+\[
+ |a_1|>|a_2|>\cdots>|a_n|=1,
+ \qquad |a_2|>1.
+\]
+Then
+\[
+ G(a_1,\ldots,a_n)=
+ \begin{cases}
+  \rho_{1/2},& |a_{n-1}|=2\text{ and }a_n=-\eps(a_{n-2}),\\
+  \id,&\text{otherwise.}
+ \end{cases}
+\]
+(See \eqref{eq:eps} for the definition of $\eps$.) Moreover, for each initial pair $(a_1,a_2)$ satisfying these hypotheses, there is at least one strictly decreasing Euclidean chain of each of the two types.
+\end{corollary}
+
+\begin{proof}
+Since the absolute values decrease strictly and the last term has absolute value $1$, no middle term can have absolute value $1$. A middle term of absolute value $2$, if present, must be $a_{n-1}$. Proposition~\ref{prop:local} makes every other local map the identity. For the final triple, the local map is $\rho_{1/2}$ exactly when
+\[
+ a_{n-2}a_n<0
+\]
+which is equivalent to $a_n=-\eps(a_{n-2})$; otherwise it is the identity. This proves the formula.
+
+To obtain chains of both types, first construct a strictly decreasing Euclidean prefix ending in a term of absolute value $2$. If $|a_2|=2$, the initial pair is already such a prefix. Otherwise, whenever $|a_i|>2$, put $m=|a_i|$ and let $r$ be the centered representative of $a_{i-1}$ modulo $m$. Coprimality gives $0<|r|<m/2$; the half-divisor case is impossible for $m>2$. Set
+\[
+ a_{i+1}=r-\eps(r)m.
+\]
+Then $a_{i+1}$ is congruent to $a_{i-1}$ modulo $m$, so there is an integer $q_i$ such that $a_{i+1}=a_{i-1}-q_i a_i$. Moreover, $a_{i+1}$ is prime to $a_i$ and
+\[
+ \frac{|a_i|}{2}<|a_{i+1}|=m-|r|<m.
+\]
+Thus, the absolute values decrease strictly but remain at least $2$. Repetition must eventually reach $2$.
+
+Let the resulting prefix end in $a_{n-1}$ with $|a_{n-1}|=2$. Its preceding term $a_{n-2}$ is odd. Appending either
+\[
+ a_n=\eps(a_{n-2})
+ \qquad\text{or}\qquad
+ a_n=-\eps(a_{n-2})
+\]
+produces a Euclidean chain ending in absolute value $1$. The first choice gives the identity local map at the final triple, and the second gives $\rho_{1/2}$. This gives chains of both types.
+\end{proof}
+
+%\enlargethispage{3\baselineskip}
+\section*{Acknowledgements}
+The mathematical development and exposition of this manuscript benefited from extensive iterative work with ChatGPT (GPT-6), which contributed to the exploration of proof strategies, the formulation and checking of arguments, and the organization and revision of the text. The human author is responsible for reviewing and approving the mathematical content of this version.
+
+\end{document}
